@@ -46,7 +46,7 @@ private:
   autoware_perception_msgs::msg::DynamicObjectWithFeatureArray::ConstSharedPtr input_roi5_msg,
   autoware_perception_msgs::msg::DynamicObjectWithFeatureArray::ConstSharedPtr input_roi6_msg,
   autoware_perception_msgs::msg::DynamicObjectWithFeatureArray::ConstSharedPtr input_roi7_msg);
-  void cameraInfoCallback(
+  void cameraInfoCallback(const
     sensor_msgs::msg::CameraInfo::ConstSharedPtr input_camera_info_msg, const int id);
   double calcIoU(
     const sensor_msgs::msg::RegionOfInterest & roi_1, const sensor_msgs::msg::RegionOfInterest & roi_2);

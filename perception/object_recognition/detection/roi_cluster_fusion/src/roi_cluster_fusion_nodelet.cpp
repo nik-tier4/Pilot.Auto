@@ -59,14 +59,13 @@ RoiClusterFusionNodelet::RoiClusterFusionNodelet(const rclcpp::NodeOptions & opt
 
   cluster_sub_.subscribe(this, "clusters", rclcpp::QoS{1}.get_rmw_qos_profile());
   for (int id = 0; id < rois_number_; ++id) {
-    v_camera_info_sub_.push_back(this->create_subscription<sensor_msgs::msg::CameraInfo>(
-    "camera_info" + std::to_string(id), 1, std::bind(&RoiClusterFusionNodelet::cameraInfoCallback, this, std::placeholders::_1, id)));
-
+    std::function<void(const sensor_msgs::msg::CameraInfo::ConstSharedPtr msg)> fcn = std::bind(&RoiClusterFusionNodelet::cameraInfoCallback, this, std::placeholders::_1, id);
+    v_camera_info_sub_.push_back(this->create_subscription<sensor_msgs::msg::CameraInfo>("camera_info" + std::to_string(id), 1, fcn));
   }
   v_roi_sub_.resize(rois_number_);
   for (int id = 0; id < (int)v_roi_sub_.size(); ++id) {
     v_roi_sub_.at(id) = std::make_shared<
-      message_filters::Subscriber<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>>(this, "rois" + std::to_string(id), 1);
+      message_filters::Subscriber<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>>(this, "rois" + std::to_string(id), rclcpp::QoS{1}.get_rmw_qos_profile());
   }
   // add dummy callback to enable passthrough filter
   v_roi_sub_.at(0)->registerCallback(bind(&RoiClusterFusionNodelet::dummyCallback, this, _1));
@@ -126,7 +125,7 @@ RoiClusterFusionNodelet::RoiClusterFusionNodelet(const rclcpp::NodeOptions & opt
 }
 
 void RoiClusterFusionNodelet::cameraInfoCallback(
-  sensor_msgs::msg::CameraInfo::ConstSharedPtr input_camera_info_msg, const int id)
+  const sensor_msgs::msg::CameraInfo::ConstSharedPtr input_camera_info_msg, const int id)
 {
   m_camera_info_[id] = *input_camera_info_msg;
 }
